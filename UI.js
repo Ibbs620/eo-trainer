@@ -15,7 +15,7 @@ function displayResults(eoMatcher) {
 
 function startTimer(duration, display, eoMatcher) {
     var timer = duration, minutes, seconds;
-    var intervalId = setInterval(function () {
+    let intervalId = setInterval(function () {
         if(timer > 0) {
             minutes = parseInt(timer / 60, 10);
             seconds = parseInt(timer % 60, 10);
@@ -30,6 +30,7 @@ function startTimer(duration, display, eoMatcher) {
             clearInterval(intervalId);
         }
     }, 1000);
+    return intervalId;
 }
 
 function resetUI() {
@@ -51,9 +52,15 @@ function main() {
     let sg = new ScrambleGenerator();
     let eoFinder = new EoFinder();
     let eoMatcher;
+    let intervalId;
     const startBtn = document.getElementById("start-btn");
     startBtn.addEventListener("click", async function() {
         resetUI();
+        try{
+            clearInterval(intervalId);
+        } catch {
+
+        }
         startBtn.disabled = true;
         console.log("A");
         let scram = sg.getPaddedScramble();
@@ -66,7 +73,7 @@ function main() {
         startBtn.disabled = false;
         var tenMinutes = 10 * 60;
         const display = document.getElementById("time-left");
-        startTimer(tenMinutes, display, eoMatcher);        
+        intervalId = startTimer(tenMinutes, display, eoMatcher);        
     });
 
     const eoInputField = document.getElementById("entered-eo");
