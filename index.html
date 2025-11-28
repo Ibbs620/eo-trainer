@@ -1,0 +1,47 @@
+<html>
+    <head>
+        <title>
+            Test
+        </title>
+    </head>
+    <body>
+        <script src="EoFinder.js" type="module"></script>
+        <script src="EoMatcher.js" type="module"></script>
+        <script src="ScambleGenerator.js" type="module"></script>
+        <script src="UI.js" type="module"></script>
+        <script src="cube.js"></script>
+        <script src="solve.js"></script>
+        <script src="https://cdn.cubing.net/v0/js/cubing/twisty" type="module"></script>
+
+        <h1>EO Trainer</h1>
+        <h4>By Ibrahim Quraishi</h4>
+
+        <h3 id="scramble-string"></h3>
+        <twisty-player
+            alg=""
+            visualization="2D"
+            hint-facelets="none"
+            control-panel="none"
+            background="none">
+        </twisty-player>
+        <button id="start-btn">Start</button>
+
+        <h2 id="timer" >Time Left: <span id="time-left">10:00</span></h2>
+        <div id="eo-entry">
+            <p>Enter EOs below</p>
+            <textarea id="entered-eo"></textarea>
+            <h6 id="error-msg"></h6>
+        </div>
+
+        <div id="found-eos">
+            <h4>Found: </h4>
+            <p id="list-eos-found"></p>
+        </div>
+
+        <div id="report" style="visibility: hidden">
+            <h4>Report</h4>
+            <p>You found <span id="eos-found-num"></span> EOs!</p>
+            <p>Missed EOs: <br> <span id="missed-eos"></span></p>
+        </div>
+    </body>
+</html>
