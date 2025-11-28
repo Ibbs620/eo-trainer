@@ -43,6 +43,8 @@ function resetUI() {
     missedEosSpan.innerHTML = "";
     const report = document.getElementById('report');
     report.style.visibility = 'hidden';
+    const display = document.getElementById("time-left");
+    display.innerHTML = "10:00";
 }
 
 function main() {
@@ -62,8 +64,8 @@ function main() {
         console.log(foundEos);
         eoMatcher = new EoMatcher(foundEos);
         startBtn.disabled = false;
-        var tenMinutes = 10 * 60,
-        display = document.getElementById("time-left");
+        var tenMinutes = 10 * 60;
+        const display = document.getElementById("time-left");
         startTimer(tenMinutes, display, eoMatcher);        
     });
 
