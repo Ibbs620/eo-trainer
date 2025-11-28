@@ -1,3 +1,4 @@
+import { EoMatcher } from "./EoMatcher.js";
 import init, { ArrayCube, Axis} from "./pkg/cubelab.js";
 
 const allMoves = [
@@ -15,6 +16,15 @@ const followUp = {
     'B' : allMoves.slice(0,6).concat(allMoves.slice(12)),
     'U' : allMoves.slice(0,12).concat(allMoves.slice(15)),
     'D' : allMoves.slice(0,12)
+}
+
+const axis = {
+    'R' : Axis.RL,
+    'L' : Axis.RL,
+    'F' : Axis.FB,
+    'B' : Axis.FB,
+    'U' : Axis.UD,
+    'D' : Axis.UD
 }
 
 const inverse = {
@@ -59,52 +69,163 @@ const eoEndingFollowup = {
     "D2" : ["L", "F", "B", "R"]
 }
 
+const nissStartOneMove = [
+    "F","B","R","L","U","D"
+];
+
+const nissStartTwoMove = Array.from(Object.entries(eoEndingFollowup))
+                            .flatMap(([key, arr]) => arr.map(el => `${key} ${el}`));
+
 export class EoFinder {
 
     async findAllSub5EosRecursive(scramble) {
         await init();
         let cube = new ArrayCube();
+        const inverseScramble = Cube.inverse(scramble);
+
+        console.log("Finding normal EOs");
+        //Normal EOs
         cube.do_alg(scramble);
         let normalEOs = [];
         for(const move of allMoves) {
             this.recuriveCheck("", move, cube, normalEOs);
         }
+        console.log(normalEOs);
+
+        console.log("Finding inverse EOs");
+        //Inverse EOs
         cube = new ArrayCube();
-        cube.do_alg(Cube.inverse(scramble));
+        cube.do_alg(inverseScramble);
         let inverseEOs = [];
         for(const move of allMoves) {
             this.recuriveCheck("", move, cube, inverseEOs);
         }
         inverseEOs = inverseEOs.map(eo => "(" + eo + ")");
-        return normalEOs.concat(inverseEOs).sort((eo1, eo2) => eo1.split(" ").length - eo2.split(" ").length);
+        console.log(inverseEOs);
+
+        console.log("Finding 1+ on normal EOs");
+        //1 normal + X inverse EOs  
+        let oneMoveOnNormalEos = [];
+        for(const move of allMoves) {
+            for(const premoves of nissStartOneMove) {
+                cube = new ArrayCube();
+                cube.do_alg(Cube.inverse(premoves));
+                cube.do_alg(inverseScramble);
+                let inversePortion = [];
+                this.recuriveCheck("", move, cube, inversePortion, 4, [axis[premoves.at(-1)]]);
+                for(const sequence of inversePortion) {
+                    if(sequence.split(" ").length > 1) oneMoveOnNormalEos.push(premoves + " ("+ sequence + ")" );
+                }
+            }
+        }
+        console.log(oneMoveOnNormalEos);
+        
+
+        console.log("Finding 1+ on inverse EOs");
+        //1 inverse + X normal EOs
+        let oneMoveOnInverseEos = [];
+        for(const move of allMoves) {
+            for(const premoves of nissStartOneMove) {
+                cube = new ArrayCube();
+                cube.do_alg(Cube.inverse(premoves));
+                cube.do_alg(scramble);
+                let normalPortion = [];
+                this.recuriveCheck("", move, cube, normalPortion, 4, [axis[premoves.at(-1)]]);
+                for(const sequence of normalPortion) {
+                    if(sequence.split(" ").length > 1) oneMoveOnInverseEos.push("("+ premoves + ") " + sequence);
+                }
+            }
+        }
+        console.log(oneMoveOnInverseEos);
+
+        console.log("Finding 2+ on normal EOs");
+        //2 normal + X inverse EOs
+        let twoMoveOnNormalEos = [];
+        for(const move of allMoves) {
+            for(const premoves of nissStartTwoMove) {
+                cube = new ArrayCube();
+                cube.do_alg(Cube.inverse(premoves));
+                cube.do_alg(inverseScramble);
+                let inversePortion = [];
+                this.recuriveCheck("", move, cube, inversePortion, 3, [axis[premoves.at(-1)]]);
+                for(const sequence of inversePortion) {
+                    if(sequence.split(" ").length > 2) twoMoveOnNormalEos.push(premoves + " ("+ sequence + ")" );
+                }
+            }
+        }
+        console.log(twoMoveOnNormalEos);
+        
+        console.log("Finding 2+ on inverse EOs");
+        //2 inverse + X normal EOs
+        let twoMoveOnInverseEos = [];
+        for(const move of allMoves) {
+            for(const premoves of nissStartTwoMove) {
+                cube = new ArrayCube();
+                cube.do_alg(Cube.inverse(premoves));
+                cube.do_alg(scramble);
+                let normalPortion = [];
+                this.recuriveCheck("", move, cube, normalPortion, 3, [axis[premoves.at(-1)]]);
+                for(const sequence of normalPortion) {
+                    if(sequence.split(" ").length > 2) twoMoveOnInverseEos.push("("+ premoves + ") " + sequence);
+                }
+            }
+        }
+        console.log(twoMoveOnInverseEos);
+
+        let allEos = this.removeDuplicates([...normalEOs, ...inverseEOs, ...oneMoveOnNormalEos, ...twoMoveOnNormalEos, ...oneMoveOnInverseEos, ...twoMoveOnInverseEos]);
+        return allEos.sort((eo1, eo2) => this.getEoLength(eo1) - this.getEoLength(eo2));
     }
 
-    recuriveCheck(currentCheck, move, cube, foundEos) {
+    removeDuplicates(foundEos) {
+        const eoMatcher = new EoMatcher([]);
+        const eosDuplicatesRemoved = [];
+        for(const eo of foundEos) {
+            let normal = eoMatcher.getNormalPortion(eo);
+            let inverse = eoMatcher.getInversePortion(eo);
+            if(normal.endsWith("U' D") || normal.endsWith("F' B") || normal.endsWith("R' L")) {
+                continue
+            }
+            if(inverse.endsWith("U' D") || inverse.endsWith("F' B") || inverse.endsWith("R' L")) {
+                continue
+            }
+            eosDuplicatesRemoved.push(eo);
+        }
+        return eosDuplicatesRemoved
+    }
+
+    getEoLength(eoString) {
+        const eoMatcher = new EoMatcher([]);
+        let normal = eoMatcher.getNormalPortion(eoString);
+        let inverse = eoMatcher.getInversePortion(eoString);
+        return normal.split(" ").length + inverse.split(" ").length;
+    }
+
+    recuriveCheck(currentCheck, move, cube, foundEos, maxN = 5, checkAxis = [Axis.FB, Axis.RL, Axis.UD]) {
         currentCheck = currentCheck === "" ? move : currentCheck + " " + move;
         const moveCount = currentCheck.split(" ").length;
 
-        if (moveCount > 5) {
+        if (moveCount > maxN) {
             return;
         }
         cube.do_alg(move);
 
-        if ("RL".includes(move) && cube.bad_edge_count(Axis.RL) == 0) {
+        if (checkAxis.includes(Axis.RL) && "RL".includes(move) && cube.bad_edge_count(Axis.RL) == 0) {
             foundEos.push(currentCheck);
         }
-        else if ("UD".includes(move) && cube.is_eo(Axis.UD)) {
+        else if (checkAxis.includes(Axis.UD) && "UD".includes(move) && cube.is_eo(Axis.UD)) {
             foundEos.push(currentCheck);
         }
-        else if ("FB".includes(move) && cube.is_eo(Axis.FB)) {
+        else if (checkAxis.includes(Axis.FB) && "FB".includes(move) && cube.is_eo(Axis.FB)) {
             foundEos.push(currentCheck);
         }
 
-        if (moveCount === 4) {
+        if (moveCount === maxN - 1) {
             for (const finalMove of eoEndingFollowup[move]) {
-                this.recuriveCheck(currentCheck, finalMove, cube, foundEos);
+                this.recuriveCheck(currentCheck, finalMove, cube, foundEos, maxN, checkAxis);
             }
         } else {
             for (const nextMove of followUp[move[0]]) {
-                this.recuriveCheck(currentCheck, nextMove, cube, foundEos);
+                this.recuriveCheck(currentCheck, nextMove, cube, foundEos, maxN, checkAxis);
             }
         }
 
