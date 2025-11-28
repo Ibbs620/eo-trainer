@@ -111,6 +111,14 @@ function main() {
         intervalId = startTimer(timer, display, eoMatcher);        
     });
 
+    const endBtn = document.getElementById("end-btn");
+    endBtn.addEventListener("click", async function() {
+        try{
+            clearInterval(intervalId);
+            displayResults(eoMatcher);
+        } catch {}
+    });
+
     const eoInputField = document.getElementById("entered-eo");
     eoInputField.addEventListener('keydown', function(event) {
         if (event.key === 'Enter') {
