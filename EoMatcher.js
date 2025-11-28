@@ -7,7 +7,7 @@ export class EoMatcher {
 
     getNormalPortion(eoString) {
         try {
-            return eoString.replace(/^\([^)]*\)\s*/, '');
+            return eoString.replace(/\([^)]*\)/, "").trim();;
         } catch {
             return "";
         }
@@ -51,8 +51,10 @@ export class EoMatcher {
         normal = this.formatEoString(normal)
         inverse = this.formatEoString(inverse);
         if(inverse != "") {
-            
-            return normal + "(" + inverse + ")";
+            if(inverse.split(" ").length < normal.split(" ").length) {
+                return "(" + inverse + ") " + normal;
+            }
+            return normal + " (" + inverse + ")";
         }
         return this.formatEoString(normal);
     }
