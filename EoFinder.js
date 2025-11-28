@@ -188,6 +188,13 @@ export class EoFinder {
             if(inverse.endsWith("U' D") || inverse.endsWith("F' B") || inverse.endsWith("R' L")) {
                 continue
             }
+            if(normal.endsWith("U2 D") || normal.endsWith("F2 B") || normal.endsWith("R2 L")) {
+                continue
+            }
+            if(inverse.endsWith("U2 D") || inverse.endsWith("F2 B") || inverse.endsWith("R2 L")) {
+                continue
+            }
+            
             eosDuplicatesRemoved.push(eo);
         }
         return eosDuplicatesRemoved
