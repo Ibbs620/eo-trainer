@@ -62,7 +62,7 @@ function main() {
         console.log(foundEos);
         eoMatcher = new EoMatcher(foundEos);
         startBtn.disabled = false;
-        var tenMinutes = 10,
+        var tenMinutes = 10 * 60,
         display = document.getElementById("time-left");
         startTimer(tenMinutes, display, eoMatcher);        
     });
