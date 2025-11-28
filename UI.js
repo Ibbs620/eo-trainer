@@ -1,6 +1,41 @@
 import {EoFinder} from "./EoFinder.js";
 import {EoMatcher} from "./EoMatcher.js";
+import { EO } from "./pkg/cubelab.js";
 import {ScrambleGenerator} from "./ScambleGenerator.js";
+
+/*
+TODO
+
+- Add NISS EOs
+- Fix F' B stuff
+- Prevent entering EOs after timer finished
+- Adjustable timer
+- Inverse EO toggle
+- Option to not clear textbox when entering EO
+- Accept EOs ending in F'
+- Make Report and EOs found look less shitty
+- Style UI a bit
+- 
+*/
+
+function invert(eo) {
+    let eoMatcher = new EoMatcher([]);
+    let normal = eoMatcher.getNormalPortion(eo);
+    let inverse = eoMatcher.getInversePortion(eo);
+    console.log(normal);
+    console.log(inverse);
+    if(normal == "") return inverse;
+    return inverse + "(" + normal + ")";
+}
+
+function getEoDiv(eo){
+    const eoDiv = document.createElement("div");
+    eoDiv.innerHTML = eo;
+    eoDiv.style.borderColor = "black";
+    eoDiv.style.borderWidth = "1px";
+    eoDiv.style.padding = "2px";
+    return eoDiv
+}
 
 function displayResults(eoMatcher) {
     const report = document.getElementById('report');
@@ -10,7 +45,9 @@ function displayResults(eoMatcher) {
     const foundEosNumSpan = document.getElementById("eos-found-num");
     foundEosNumSpan.innerHTML = foundEos.length;
     const missedEosSpan = document.getElementById("missed-eos");
-    missedEosSpan.innerHTML = missedEos.join("<br>");
+    missedEos.forEach((eo) => missedEosSpan.appendChild(getEoDiv(eo)));
+    const missedEosNumSpan = document.getElementById("missed-eos-num");
+    missedEosNumSpan.innerHTML = missedEos.length;
 };
 
 function startTimer(duration, display, eoMatcher) {
@@ -45,12 +82,12 @@ function resetUI() {
     const report = document.getElementById('report');
     report.style.visibility = 'hidden';
     const display = document.getElementById("time-left");
-    display.innerHTML = "10:00";
+    display.innerHTML = document.getElementById("time-limit-m").value + ":" + document.getElementById("time-limit-s").value;
 }
 
 function main() {
     let sg = new ScrambleGenerator();
-    let eoFinder = new EoFinder();
+    let eoFinder = new EoFinder(5);
     let eoMatcher;
     let intervalId;
     const startBtn = document.getElementById("start-btn");
@@ -62,18 +99,16 @@ function main() {
 
         }
         startBtn.disabled = true;
-        console.log("A");
         let scram = sg.getPaddedScramble();
-        console.log(scram)
-        document.getElementById("scramble-string").innerHTML = scram;
-        document.getElementsByTagName("twisty-player")[0].setAttribute("alg", scram);
         const foundEos = await eoFinder.findAllSub5EosRecursive(scram);
         console.log(foundEos);
         eoMatcher = new EoMatcher(foundEos);
+        document.getElementById("scramble-string").innerHTML = scram;
+        document.getElementsByTagName("twisty-player")[0].setAttribute("alg", scram);
         startBtn.disabled = false;
-        var tenMinutes = 10 * 60;
+        var timer = parseInt(document.getElementById("time-limit-m").value) * 60 + parseInt(document.getElementById("time-limit-s").value);
         const display = document.getElementById("time-left");
-        intervalId = startTimer(tenMinutes, display, eoMatcher);        
+        intervalId = startTimer(timer, display, eoMatcher);        
     });
 
     const eoInputField = document.getElementById("entered-eo");
@@ -81,18 +116,18 @@ function main() {
         if (event.key === 'Enter') {
             event.preventDefault();
             const error = document.getElementById("error-msg");
-            const foundEosP = document.getElementById("list-eos-found");
+            const foundEosDiv = document.getElementById("list-eos-found");
             error.innerHTML = "";
-            let eo = eoInputField.value;
+            let eo = document.getElementById("inverse").checked ? invert(eoInputField.value) : eoInputField.value;
             console.log(eo);
             if(eoMatcher.checkIfFoundEo(eo)) {
                 error.innerHTML = "EO already found";
             } else if (!eoMatcher.checkIfEo(eo)){
                 error.innerHTML = "Invalid EO";
             } else {
-                foundEosP.innerHTML = eo + "<br>" + foundEosP.innerHTML;
+                foundEosDiv.appendChild(getEoDiv(eoMatcher.formatEo(eo)));
                 error.innerHTML = "";
-                eoInputField.value = "";
+                if(document.getElementById("clear-eo").checked) eoInputField.value = "";
             }
         }
     });

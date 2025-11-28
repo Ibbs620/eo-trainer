@@ -3,6 +3,26 @@
         <title>
             EO Trainer
         </title>
+        <style>
+            .eoList {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;         /* spacing between boxes */
+            }
+            .eoList > div {
+                padding: 4px 8px;
+                background: #eee;
+                border-radius: 4px;
+            }
+            #settings  {
+                border: 1px solid black;
+                padding : 4px;
+            }
+            
+            #settings > input  {
+                width: 25px;
+            }
+        </style>
     </head>
     <body>
         <script src="EoFinder.js" type="module"></script>
@@ -14,7 +34,13 @@
         <script src="https://cdn.cubing.net/v0/js/cubing/twisty" type="module"></script>
 
         <h1>EO Trainer</h1>
-        <h4>By Ibrahim Quraishi</h4>
+
+        <div id="settings"> 
+            <b>Settings</b> <br>   
+              Time limit <input type="text" id="time-limit-m" maxlength="2" value="10"></input>m <input type="text" id="time-limit-s" maxlength="2" value="00">s
+            | Clear EO on entry<input type="checkbox" id="clear-eo"> 
+
+        </div>
 
         <h3 id="scramble-string"></h3>
         <twisty-player
@@ -29,19 +55,21 @@
         <h2 id="timer" >Time Left: <span id="time-left">10:00</span></h2>
         <div id="eo-entry">
             <p>Enter EOs below</p>
-            <textarea id="entered-eo"></textarea>
+            <textarea id="entered-eo"></textarea> 
+            <p>Inverse: <input type="checkbox" id="inverse"></p>
             <h6 id="error-msg"></h6>
         </div>
 
         <div id="found-eos">
             <h4>Found: </h4>
-            <p id="list-eos-found"></p>
+            <div id="list-eos-found" class="eoList"></p>
         </div>
 
         <div id="report" style="visibility: hidden">
             <h4>Report</h4>
             <p>You found <span id="eos-found-num"></span> EOs!</p>
-            <p>Missed EOs: <br> <span id="missed-eos"></span></p>
+            <p>You missed <span id="missed-eos-num"></span> EOs:</p>
+            <div id="missed-eos" class="eoList"></div>
         </div>
     </body>
 </html>
