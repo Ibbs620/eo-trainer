@@ -6,7 +6,7 @@ export class ScrambleGenerator {
 
     getPaddedScramble() {
         var inverseUnpadded = "R F";
-        while(inverseUnpadded[0] == "R" || inverseUnpadded[inverseUnpadded.length - 1] == "F" || inverseUnpadded[inverseUnpadded.length - 2] == "F") {   
+        while("RL".includes(inverseUnpadded[0])  || "FB".includes(inverseUnpadded[inverseUnpadded.length - 1]) || "FB".includes(inverseUnpadded[inverseUnpadded.length - 2])) {   
             var scramble = Cube.scramble();
             var scrambledCube = new Cube();
             scrambledCube.move("F' U R " + scramble + " F' U R");
