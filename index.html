@@ -16,7 +16,10 @@
             }
             #settings  {
                 border: 1px solid black;
-                padding : 4px;
+                padding: 4px 8px;
+                background: #eee;
+                border-radius: 4px;
+                width: fit-content;
             }
             
             #settings > input  {
@@ -37,9 +40,9 @@
 
         <div id="settings"> 
             <b>Settings</b> <br>   
-              Time limit <input type="text" id="time-limit-m" maxlength="2" value="10"></input>m <input type="text" id="time-limit-s" maxlength="2" value="00">s
-            | Clear EO on entry<input type="checkbox" id="clear-eo"> 
-
+            Time limit <input type="text" id="time-limit-m" maxlength="2" value="10"></input>m <input type="text" id="time-limit-s" maxlength="2" value="00">s <br> 
+            Clear EO on entry<input type="checkbox" id="clear-eo">  <br> 
+            Ignore inverse toggle when using brackets<input type="checkbox" id="ignore-inverse-toggle" checked="true"> <br> 
         </div>
 
         <h3 id="scramble-string"></h3>

@@ -1,24 +1,20 @@
 import {EoFinder} from "./EoFinder.js";
 import {EoMatcher} from "./EoMatcher.js";
-import { EO } from "./pkg/cubelab.js";
 import {ScrambleGenerator} from "./ScambleGenerator.js";
 
 /*
 TODO
-
-- Add NISS EOs
-- Fix F' B stuff
+ 
 - Prevent entering EOs after timer finished
-- Adjustable timer
-- Inverse EO toggle
-- Option to not clear textbox when entering EO
 - Accept EOs ending in F'
 - Make Report and EOs found look less shitty
 - Style UI a bit
-- 
 */
 
 function invert(eo) {
+    if(eo.includes("(") && document.getElementById("ignore-inverse-toggle").checked) {
+        return eo;
+    }
     let eoMatcher = new EoMatcher([]);
     let normal = eoMatcher.getNormalPortion(eo);
     let inverse = eoMatcher.getInversePortion(eo);

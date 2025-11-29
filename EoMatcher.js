@@ -56,7 +56,7 @@ export class EoMatcher {
             }
             return normal + " (" + inverse + ")";
         }
-        return this.formatEoString(normal);
+        return normal;
     }
 
     checkIfEo(eo) {
@@ -71,7 +71,7 @@ export class EoMatcher {
     }
 
     checkIfFoundEo(eo) {
-        eo = this.formatEo(eo);
+        eo = this.formatEo(eo).trim();
         console.log(eo);
         return this.foundEos.includes(eo);
     }
