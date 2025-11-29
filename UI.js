@@ -11,6 +11,8 @@ TODO
 - Style UI a bit
 */
 
+let attemptInProgress = false;
+
 function invert(eo) {
     if(eo.includes("(") && document.getElementById("ignore-inverse-toggle").checked) {
         return eo;
@@ -59,6 +61,7 @@ function startTimer(duration, display, eoMatcher) {
             display.textContent = minutes + ":" + seconds;
             timer--;
         } else {
+            attemptInProgress = false;
             displayResults(eoMatcher);
             clearInterval(intervalId);
         }
@@ -91,16 +94,16 @@ function main() {
         resetUI();
         try{
             clearInterval(intervalId);
-        } catch {
-
-        }
+        } catch {}
+        attemptInProgress = true;
         startBtn.disabled = true;
         let scram = sg.getPaddedScramble();
         const foundEos = await eoFinder.findAllSub5EosRecursive(scram);
         console.log(foundEos);
         eoMatcher = new EoMatcher(foundEos);
         document.getElementById("scramble-string").innerHTML = scram;
-        document.getElementsByTagName("twisty-player")[0].setAttribute("alg", scram);
+        document.getElementById("normal-scramble-view").setAttribute("alg", scram);
+        document.getElementById("inverse-scramble-view").setAttribute("alg", Cube.inverse(scram));
         startBtn.disabled = false;
         var timer = parseInt(document.getElementById("time-limit-m").value) * 60 + parseInt(document.getElementById("time-limit-s").value);
         const display = document.getElementById("time-left");
@@ -112,6 +115,7 @@ function main() {
         try{
             clearInterval(intervalId);
             displayResults(eoMatcher);
+            attemptInProgress = false;
         } catch {}
     });
 
@@ -119,6 +123,7 @@ function main() {
     eoInputField.addEventListener('keydown', function(event) {
         if (event.key === 'Enter') {
             event.preventDefault();
+            if(!attemptInProgress) return;
             const error = document.getElementById("error-msg");
             const foundEosDiv = document.getElementById("list-eos-found");
             error.innerHTML = "";
@@ -133,6 +138,29 @@ function main() {
                 error.innerHTML = "";
                 if(document.getElementById("clear-eo").checked) eoInputField.value = "";
             }
+        }
+    });
+
+    
+    const showInverseCheck = document.getElementById("toggle-inverse-image");
+    showInverseCheck.addEventListener('click', function(event) {
+        if(showInverseCheck.checked) {
+            document.getElementById("normal-scramble-title").style.visibility = "visible";
+            document.getElementById("inverse-scramble").style.visibility = "visible";
+        } else {
+            document.getElementById("normal-scramble-title").style.visibility = "hidden";
+            document.getElementById("inverse-scramble").style.visibility = "hidden";
+        }
+    });
+
+    const scrambleViewSelector = document.getElementById("scramble-view");
+    scrambleViewSelector.addEventListener('change', function(event) {
+        if(event.target.value == "2d") {
+            document.getElementById("normal-scramble-view").setAttribute("visualization", "2D");
+            document.getElementById("inverse-scramble-view").setAttribute("visualization", "2D");
+        } else {
+            document.getElementById("normal-scramble-view").setAttribute("visualization", "3D");
+            document.getElementById("inverse-scramble-view").setAttribute("visualization", "3D");
         }
     });
 }
