@@ -1,7 +1,6 @@
 import {EoFinder} from "./EoFinder.js";
 import { EoFormatter } from "./EoFormatter.js";
 import {EoMatcher} from "./EoMatcher.js";
-import init, { ArrayCube, Axis } from "./pkg/cubelab.js";
 import {ScrambleGenerator} from "./ScambleGenerator.js";
 
 /*
@@ -103,10 +102,6 @@ function resetUI() {
 }
 
 async function main() {
-    await init();
-    let cube = new ArrayCube();
-    cube.do_alg("B' R R' U' F D' R2 F2 U2 B2 U' L2 D' L2 R2 U2 F' D' B D' F R' B2 F R' D2 R' U' F U2 F");
-    console.log(cube.is_eo(Axis.FB));
     let sg = new ScrambleGenerator();
     let eoFinder = new EoFinder(5);
     let eoMatcher;

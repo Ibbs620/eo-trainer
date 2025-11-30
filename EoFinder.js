@@ -75,7 +75,6 @@ const nissStartOneMove = [
 
 const nissStartTwoMove = Array.from(Object.entries(eoEndingFollowup))
                             .flatMap(([key, arr]) => arr.map(el => `${key} ${el}`));
-console.log(nissStartTwoMove);
 
 export class EoFinder {
 
