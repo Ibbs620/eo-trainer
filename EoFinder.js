@@ -75,6 +75,7 @@ const nissStartOneMove = [
 
 const nissStartTwoMove = Array.from(Object.entries(eoEndingFollowup))
                             .flatMap(([key, arr]) => arr.map(el => `${key} ${el}`));
+console.log(nissStartTwoMove);
 
 export class EoFinder {
 
@@ -114,7 +115,7 @@ export class EoFinder {
                 let inversePortion = [];
                 this.recuriveCheck("", move, cube, inversePortion, 4, [axis[premoves.at(-1)]]);
                 for(const sequence of inversePortion) {
-                    if(sequence.split(" ").length > 1) oneMoveOnNormalEos.push(premoves + " ("+ sequence + ")" );
+                    oneMoveOnNormalEos.push(premoves + " ("+ sequence + ")" );
                 }
             }
         }
@@ -136,7 +137,6 @@ export class EoFinder {
                 }
             }
         }
-        console.log(oneMoveOnInverseEos);
 
         console.log("Finding 2+ on normal EOs");
         //2 normal + X inverse EOs
@@ -149,7 +149,7 @@ export class EoFinder {
                 let inversePortion = [];
                 this.recuriveCheck("", move, cube, inversePortion, 3, [axis[premoves.at(-1)]]);
                 for(const sequence of inversePortion) {
-                    if(sequence.split(" ").length > 2) twoMoveOnNormalEos.push(premoves + " ("+ sequence + ")" );
+                    twoMoveOnNormalEos.push(premoves + " ("+ sequence + ")" );
                 }
             }
         }

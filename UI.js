@@ -1,6 +1,7 @@
 import {EoFinder} from "./EoFinder.js";
 import { EoFormatter } from "./EoFormatter.js";
 import {EoMatcher} from "./EoMatcher.js";
+import init, { ArrayCube, Axis } from "./pkg/cubelab.js";
 import {ScrambleGenerator} from "./ScambleGenerator.js";
 
 /*
@@ -101,7 +102,11 @@ function resetUI() {
     display.innerHTML = document.getElementById("time-limit-m").value + ":" + document.getElementById("time-limit-s").value;
 }
 
-function main() {
+async function main() {
+    await init();
+    let cube = new ArrayCube();
+    cube.do_alg("B' R R' U' F D' R2 F2 U2 B2 U' L2 D' L2 R2 U2 F' D' B D' F R' B2 F R' D2 R' U' F U2 F");
+    console.log(cube.is_eo(Axis.FB));
     let sg = new ScrambleGenerator();
     let eoFinder = new EoFinder(5);
     let eoMatcher;
@@ -118,7 +123,6 @@ function main() {
         attemptInProgress = true;
         let scram = sg.getPaddedScramble();
         const foundEos = await eoFinder.findAllSub5EosRecursive(scram);
-        console.log(foundEos);
         eoMatcher = new EoMatcher(foundEos);
         document.getElementById("scramble-string").innerHTML = scram;
         document.getElementById("normal-scramble-view").setAttribute("alg", scram);
