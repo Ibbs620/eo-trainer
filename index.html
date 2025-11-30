@@ -8,13 +8,16 @@
                 margin: 0;
                 padding: 8px;
                 font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                background-color: #1E1E2F;
+                color: #E0E0E0;
             }
             #settings-box, #filter-box {
                 width: fit-content;
                 box-sizing: border-box;
-                background: #eee; border-radius: 4px;
-                border: 1px solid black;
                 padding: 8px;
+                background-color: #2C2C3E;
+                border: 1px solid #555577;
+                color: #E0E0E0;
             }
 
             #settings-box input[type="text"] {
@@ -25,10 +28,6 @@
                 display: flex;
                 flex-wrap: wrap;
                 gap: 12px;
-            }
-
-            #scramble-view > div {
-                width: 100%;
             }
 
             .eoList { 
@@ -55,7 +54,10 @@
 
             .eoList > div {
                 font-size: 1.2rem;
-                background: #eee; border-radius: 4px;
+                border-radius: 4px;
+                background-color: #2C2C3E;
+                border: 1px solid #555577;
+                color: #E0E0E0;
             }
 
             button {
@@ -63,6 +65,26 @@
                 width: 100%;
                 max-width: 300px;
                 margin: 8px 0;
+                background-color: #4C9AFF;
+                color: #E0E0E0;
+            }
+
+            button:hover {
+                background-color: #1A73FF;
+            }
+
+            input, textarea, select {
+                background-color: #3C3C5E;
+                color: #E0E0E0;
+                border: 1px solid #555577;
+            }
+
+            #timer span {
+                color: #FFCC00;
+            }
+
+            .active, .highlight {
+                color: #FF6B6B;
             }
 
             @media (max-width: 480px) {
