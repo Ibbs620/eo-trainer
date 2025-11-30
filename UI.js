@@ -108,12 +108,14 @@ function main() {
     let intervalId;
     const startBtn = document.getElementById("start-btn");
     startBtn.addEventListener("click", async function() {
+        startBtn.innerHTML = "Loading...";
+        startBtn.disabled = true;
+        await new Promise(resolve => setTimeout(resolve, 0));
         resetUI();
         try{
             clearInterval(intervalId);
         } catch {}
         attemptInProgress = true;
-        startBtn.disabled = true;
         let scram = sg.getPaddedScramble();
         const foundEos = await eoFinder.findAllSub5EosRecursive(scram);
         console.log(foundEos);
@@ -122,7 +124,16 @@ function main() {
         document.getElementById("normal-scramble-view").setAttribute("alg", scram);
         document.getElementById("inverse-scramble-view").setAttribute("alg", Cube.inverse(scram));
         startBtn.disabled = false;
-        var timer = parseInt(document.getElementById("time-limit-m").value) * 60 + parseInt(document.getElementById("time-limit-s").value);
+        startBtn.innerHTML = "Start";
+        let minutes = document.getElementById("time-limit-m").value;
+        let seconds = document.getElementById("time-limit-s").value;
+        var timer = 0;
+        try {
+            timer += parseInt(minutes) * 60;
+        } catch {}
+        try {
+            timer += parseInt(seconds);
+        } catch {}
         const display = document.getElementById("time-left");
         intervalId = startTimer(timer, display, eoMatcher);        
     });
