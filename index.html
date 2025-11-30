@@ -4,45 +4,83 @@
             EO Trainer
         </title>
         <style>
-            .eoList {
-                display: flex;
-                flex-wrap: wrap;
-                gap: 8px; 
+            body {
+                margin: 0;
+                padding: 8px;
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             }
-            .eoList > div {
-                padding: 4px 8px;
-                background: #eee;
-                border-radius: 4px;
-            }
-            #settings-box  {
-                border: 1px solid black;
-                padding: 4px 8px;
-                background: #eee;
-                border-radius: 4px;
+            #settings-box, #filter-box {
                 width: fit-content;
+                box-sizing: border-box;
+                background: #eee; border-radius: 4px;
+                border: 1px solid black;
+                padding: 8px;
             }
-            
-            #settings-box input  {
-                width: 25px;
+
+            #settings-box input[type="text"] {
+                width: 3em;
             }
 
             #scramble-view {
                 display: flex;
                 flex-wrap: wrap;
+                gap: 12px;
             }
 
-            p, div, h1, h2, h3, h4, span, details {
-                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            #scramble-view > div {
+                width: 100%;
             }
 
-            label {
-                display: inline-flex;
-                align-items: center;
-                gap: 4px;
+            .eoList { 
+                display: flex; 
+                flex-wrap: wrap; 
+                gap: 8px; 
+            }
+
+            #entered-eo {
+                width: 200px;
+                max-width: 100%;        
+                height: 2.5em; 
+                font-size: 1.1rem;
+                box-sizing: border-box;
+                resize : none;
+            }
+
+            #scramble-string {
+                word-wrap: break-word;
+                overflow-wrap: break-word;
+                white-space: normal;                  
+                max-width: 100%;      
+            }
+
+            .eoList > div {
+                font-size: 1.2rem;
+                background: #eee; border-radius: 4px;
+            }
+
+            button {
+                padding: 10px 16px;
+                width: 100%;
+                max-width: 300px;
+                margin: 8px 0;
+            }
+
+            @media (max-width: 480px) {
+                h1, h2, h3 {
+                    font-size: 1.2rem;
+                }
+                .eoList >div {
+                    font-size: 0.9rem;
+                }
+                #entered-eo {
+                    width: 100%;
+                }
             }
         </style>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
     </head>
     <body>
+        <script src="EoFormatter.js" type="module"></script>
         <script src="EoFinder.js" type="module"></script>
         <script src="EoMatcher.js" type="module"></script>
         <script src="ScambleGenerator.js" type="module"></script>
@@ -56,28 +94,28 @@
         <details id="settings-box" open="true"> 
             <summary>Settings</summary>
             <label>
-                Time limit
+                Time limit:
                 <input type="text" id="time-limit-m" maxlength="2" value="10"></input>m <input type="text" id="time-limit-s" maxlength="2" value="00">s
             </label>
             <br>
             <label>
-                Clear EO on entry
+                Clear EO on entry:
                 <input type="checkbox" id="clear-eo">
             </label>
             <br>
             <label>
-                Ignore inverse toggle when using brackets
+                Ignore inverse toggle when using brackets:
                 <input type="checkbox" id="ignore-inverse-toggle" checked="true">
             </label>
             <br>
             <label>
-                Show inverse image
+                Show inverse image:
                 <input type="checkbox" id="toggle-inverse-image">
             </label>
             <br>
             <label>
-                Scramble view
-                <select id="scramble-view" style="inline">
+                Scramble view:
+                <select id="scramble-view-mode">
                     <option value="2d" selected>2D</option>
                     <option value="3d">3D</option>
                 </select>
@@ -87,7 +125,7 @@
         <h3 id="scramble-string"></h3>
         <div id="scramble-view">
             <div id="normal-scramble">
-                <span id="normal-scramble-title" style="visibility: hidden">Normal</span>
+                <span id="normal-scramble-title" style="visibility: hidden;">Normal</span>
                 <twisty-player
                     id="normal-scramble-view"
                     alg=""
@@ -97,7 +135,7 @@
                     background="none">
                 </twisty-player>
             </div>
-            <div id="inverse-scramble" style="visibility: hidden">
+            <div id="inverse-scramble" style="display: none">
                 Inverse
                 <twisty-player
                     id="inverse-scramble-view"
@@ -109,10 +147,10 @@
                 </twisty-player>
             </div>
         </div>
-        <button id="start-btn">Start</button>
-        <button id="end-btn">End</button>
 
         <h2 id="timer" >Time Left: <span id="time-left">10:00</span></h2>
+        <button id="start-btn">Start</button>
+        <button id="end-btn">End</button>
         <div id="eo-entry">
             <p>Enter EOs below</p>
             <textarea id="entered-eo"></textarea> 
@@ -129,6 +167,38 @@
             <h4>Report</h4>
             <p>You found <span id="eos-found-num"></span> EOs!</p>
             <p>You missed <span id="missed-eos-num"></span> EOs:</p>
+
+            <details id="filter-box" open="false">
+                <summary>Filter</summary>
+                <label>
+                    Max move count:
+                    <input id="moves-slider" type="range" value="5" min="1" max="5" /> <span id="moves-slider-value">5</span>
+                </label><br>
+                <label>
+                    Axis:
+                    <label>
+                        F/B
+                        <input type="checkbox" id="axis-filter-fb" checked="true">
+                    </label>
+                    <label>
+                        R/L
+                        <input type="checkbox" id="axis-filter-rl" checked="true">
+                    </label>
+                    <label>
+                        U/D
+                        <input type="checkbox" id="axis-filter-ud" checked="true">
+                    </label>
+                </label><br>
+                <label>
+                    Show inverse EOs:
+                    <input type="checkbox" id="inverse-filter" checked="true">
+                </label><br>
+                <label>
+                    Show NISS EOs:
+                    <input type="checkbox" id="niss-filter" checked="true">
+                </label>
+            </details>
+            <br>
             <div id="missed-eos" class="eoList"></div>
         </div>
     </body>

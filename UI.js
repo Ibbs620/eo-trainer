@@ -1,4 +1,5 @@
 import {EoFinder} from "./EoFinder.js";
+import { EoFormatter } from "./EoFormatter.js";
 import {EoMatcher} from "./EoMatcher.js";
 import {ScrambleGenerator} from "./ScambleGenerator.js";
 
@@ -17,11 +18,8 @@ function invert(eo) {
     if(eo.includes("(") && document.getElementById("ignore-inverse-toggle").checked) {
         return eo;
     }
-    let eoMatcher = new EoMatcher([]);
-    let normal = eoMatcher.getNormalPortion(eo);
-    let inverse = eoMatcher.getInversePortion(eo);
-    console.log(normal);
-    console.log(inverse);
+    let normal = EoFormatter.getNormalPortion(eo);
+    let inverse = EoFormatter.getInversePortion(eo);
     if(normal == "") return inverse;
     return inverse + "(" + normal + ")";
 }
@@ -35,15 +33,34 @@ function getEoDiv(eo){
     return eoDiv
 }
 
+function displayEos(missedEOs) {
+    const missedEosSpan = document.getElementById("missed-eos");
+    missedEosSpan.innerHTML = "";
+    const maxEoLength = document.getElementById("moves-slider").value;
+    const showInverse = document.getElementById("inverse-filter").checked;
+    const showNiss = document.getElementById("niss-filter").checked;
+    const showFB = document.getElementById("axis-filter-fb").checked;
+    const showRL = document.getElementById("axis-filter-rl").checked;
+    const showUD = document.getElementById("axis-filter-ud").checked;
+    missedEOs.filter((eo) => {
+        if(EoFormatter.getEoLength(eo) > maxEoLength) return false;
+        if(!showInverse && EoFormatter.isInverseEo(eo)) return false;
+        if(!showNiss && EoFormatter.isNissEo(eo)) return false;
+        if(!showFB && EoFormatter.isEoFB(eo)) return false;
+        if(!showRL && EoFormatter.isEoRL(eo)) return false;
+        if(!showUD && EoFormatter.isEoUD(eo)) return false;
+        return true;
+    }).forEach(eo => missedEosSpan.appendChild(getEoDiv(eo)));
+}
+
 function displayResults(eoMatcher) {
     const report = document.getElementById('report');
     report.style.visibility = 'visible';
     const foundEos = eoMatcher.getFoundEos();
     const missedEos = eoMatcher.getMissedEos();
+    displayEos(missedEos);
     const foundEosNumSpan = document.getElementById("eos-found-num");
     foundEosNumSpan.innerHTML = foundEos.length;
-    const missedEosSpan = document.getElementById("missed-eos");
-    missedEos.forEach((eo) => missedEosSpan.appendChild(getEoDiv(eo)));
     const missedEosNumSpan = document.getElementById("missed-eos-num");
     missedEosNumSpan.innerHTML = missedEos.length;
 };
@@ -112,6 +129,7 @@ function main() {
 
     const endBtn = document.getElementById("end-btn");
     endBtn.addEventListener("click", async function() {
+        if(!attemptInProgress) return;
         try{
             clearInterval(intervalId);
             displayResults(eoMatcher);
@@ -128,13 +146,13 @@ function main() {
             const foundEosDiv = document.getElementById("list-eos-found");
             error.innerHTML = "";
             let eo = document.getElementById("inverse").checked ? invert(eoInputField.value) : eoInputField.value;
-            console.log(eo);
+            eo = eo.toUpperCase();
             if(eoMatcher.checkIfFoundEo(eo)) {
                 error.innerHTML = "EO already found";
             } else if (!eoMatcher.checkIfEo(eo)){
                 error.innerHTML = "Invalid EO";
             } else {
-                foundEosDiv.appendChild(getEoDiv(eoMatcher.formatEo(eo)));
+                foundEosDiv.appendChild(getEoDiv(EoFormatter.formatEo(eo)));
                 error.innerHTML = "";
                 if(document.getElementById("clear-eo").checked) eoInputField.value = "";
             }
@@ -146,14 +164,14 @@ function main() {
     showInverseCheck.addEventListener('click', function(event) {
         if(showInverseCheck.checked) {
             document.getElementById("normal-scramble-title").style.visibility = "visible";
-            document.getElementById("inverse-scramble").style.visibility = "visible";
+            document.getElementById("inverse-scramble").style.display = "";
         } else {
             document.getElementById("normal-scramble-title").style.visibility = "hidden";
-            document.getElementById("inverse-scramble").style.visibility = "hidden";
+            document.getElementById("inverse-scramble").style.display = "none";
         }
     });
 
-    const scrambleViewSelector = document.getElementById("scramble-view");
+    const scrambleViewSelector = document.getElementById("scramble-view-mode");
     scrambleViewSelector.addEventListener('change', function(event) {
         if(event.target.value == "2d") {
             document.getElementById("normal-scramble-view").setAttribute("visualization", "2D");
@@ -163,6 +181,22 @@ function main() {
             document.getElementById("inverse-scramble-view").setAttribute("visualization", "3D");
         }
     });
+
+    const maxMoveCount = document.getElementById("moves-slider");
+    maxMoveCount.addEventListener('change', () => {
+        document.getElementById("moves-slider-value").innerHTML = maxMoveCount.value;
+        displayEos(eoMatcher.getMissedEos());
+    });
+    const showInverse = document.getElementById("inverse-filter");
+    showInverse.addEventListener('change', () => displayEos(eoMatcher.getMissedEos()));
+    const showNiss = document.getElementById("niss-filter");
+    showNiss.addEventListener('change', () => displayEos(eoMatcher.getMissedEos()));
+    const showFB = document.getElementById("axis-filter-fb");
+    showFB.addEventListener('change', () => displayEos(eoMatcher.getMissedEos()));
+    const showRL = document.getElementById("axis-filter-rl");
+    showRL.addEventListener('change', () => displayEos(eoMatcher.getMissedEos()));
+    const showUD = document.getElementById("axis-filter-ud");
+    showUD.addEventListener('change', () => displayEos(eoMatcher.getMissedEos()));
 }
     
 main();

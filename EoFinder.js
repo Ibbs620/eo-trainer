@@ -1,4 +1,4 @@
-import { EoMatcher } from "./EoMatcher.js";
+import { EoFormatter } from "./EoFormatter.js";
 import init, { ArrayCube, Axis} from "./pkg/cubelab.js";
 
 const allMoves = [
@@ -177,11 +177,10 @@ export class EoFinder {
     }
 
     removeDuplicates(foundEos) {
-        const eoMatcher = new EoMatcher([]);
         const eosDuplicatesRemoved = [];
         for(const eo of foundEos) {
-            let normal = eoMatcher.getNormalPortion(eo);
-            let inverse = eoMatcher.getInversePortion(eo);
+            let normal = EoFormatter.getNormalPortion(eo);
+            let inverse = EoFormatter.getInversePortion(eo);
             if(normal.endsWith("U' D") || normal.endsWith("F' B") || normal.endsWith("R' L")) {
                 continue
             }
@@ -194,16 +193,14 @@ export class EoFinder {
             if(inverse.endsWith("U2 D") || inverse.endsWith("F2 B") || inverse.endsWith("R2 L")) {
                 continue
             }
-            
             eosDuplicatesRemoved.push(eo);
         }
         return eosDuplicatesRemoved
     }
 
     getEoLength(eoString) {
-        const eoMatcher = new EoMatcher([]);
-        let normal = eoMatcher.getNormalPortion(eoString);
-        let inverse = eoMatcher.getInversePortion(eoString);
+        let normal = EoFormatter.getNormalPortion(eoString);
+        let inverse = EoFormatter.getInversePortion(eoString);
         return normal.split(" ").length + inverse.split(" ").length;
     }
 
