@@ -9,7 +9,6 @@ export class EoMatcher {
 
     checkIfEo(eo) {
         eo = EoFormatter.formatEo(eo).trim();
-        console.log(eo);
         if(this.allEos.includes(eo)) {
             this.foundEos.push(eo);
             this.missedEOs.splice(this.allEos.indexOf(eo), 1);
@@ -20,7 +19,6 @@ export class EoMatcher {
 
     checkIfFoundEo(eo) {
         eo = EoFormatter.formatEo(eo).trim();
-        console.log(eo);
         return this.foundEos.includes(eo);
     }
 

@@ -148,7 +148,7 @@ export class EoFinder {
                 let inversePortion = [];
                 this.recuriveCheck("", move, cube, inversePortion, 3, [axis[premoves.at(-1)]]);
                 for(const sequence of inversePortion) {
-                    twoMoveOnNormalEos.push(premoves + " ("+ sequence + ")" );
+                    if(sequence.split(" ").length > 1) twoMoveOnNormalEos.push(premoves + " ("+ sequence + ")" );
                 }
             }
         }
