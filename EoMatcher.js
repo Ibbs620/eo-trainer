@@ -11,7 +11,7 @@ export class EoMatcher {
         eo = EoFormatter.formatEo(eo).trim();
         if(this.allEos.includes(eo)) {
             this.foundEos.push(eo);
-            this.missedEOs.splice(this.allEos.indexOf(eo), 1);
+            this.missedEOs.splice(this.missedEOs.indexOf(eo), 1);
             return true;
         }  
         return false;
