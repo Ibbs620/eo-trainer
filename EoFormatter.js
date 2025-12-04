@@ -40,6 +40,7 @@ export class EoFormatter {
     }
 
     static formatEo(eoString) {
+        eoString = eoString.toUpperCase();
         let normal = this.getNormalPortion(eoString);
         let inverse = this.getInversePortion(eoString);
         normal = this.formatEoString(normal)

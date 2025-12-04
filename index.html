@@ -69,6 +69,11 @@
                 color: #E0E0E0;
             }
 
+            #plus-one-btn {
+                width: 8%;
+                margin: 2px 0;
+            }
+
             button:hover {
                 background-color: #1A73FF;
             }
@@ -85,6 +90,15 @@
 
             .active, .highlight {
                 color: #FF6B6B;
+            }
+
+            #scramble-entry {
+                width: 90%;
+                max-width: 100%;        
+                height: 2.5em; 
+                font-size: 1.1rem;
+                box-sizing: border-box;
+                resize : none;
             }
 
             @media (max-width: 480px) {
@@ -142,9 +156,16 @@
                     <option value="3d">3D</option>
                 </select>
             </label>
+            <br>
+            <label>
+                Use custom scramble:
+                <input type="checkbox" id="use-custom-scramble">
+            </label>
         </details>
 
         <h3 id="scramble-string"></h3>
+        <textarea id="scramble-entry" style="display: none;"></textarea><br>
+        <span id="scramble-error-msg" style="color: red"></span>
         <div id="scramble-view">
             <div id="normal-scramble">
                 <span id="normal-scramble-title" style="visibility: hidden;">Normal</span>
@@ -173,6 +194,7 @@
         <h2 id="timer" >Time Left: <span id="time-left">10:00</span></h2>
         <button id="start-btn">Start</button>
         <button id="end-btn">End</button>
+        <button id="plus-one-btn">+1</button>
         <div id="eo-entry">
             <p>Enter EOs below</p>
             <textarea id="entered-eo"></textarea> 
@@ -187,7 +209,7 @@
 
         <div id="report" style="visibility: hidden">
             <h4>Report</h4>
-            <p>You found <span id="eos-found-num"></span> EOs!</p>
+            <p>You found <span id="eos-found-num"></span> EOs in <span id="time-taken"></span>!</p>
             <p>You missed <span id="missed-eos-num"></span> EOs:</p>
 
             <details id="filter-box" open="false">
