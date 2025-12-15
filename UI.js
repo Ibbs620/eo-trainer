@@ -40,6 +40,7 @@ function displayEos(missedEOs) {
     const missedEosSpan = document.getElementById("missed-eos");
     missedEosSpan.innerHTML = "";
     const maxEoLength = document.getElementById("moves-slider").value;
+    const showNormal = document.getElementById("normal-filter").checked;
     const showInverse = document.getElementById("inverse-filter").checked;
     const showNiss = document.getElementById("niss-filter").checked;
     const showFB = document.getElementById("axis-filter-fb").checked;
@@ -47,6 +48,7 @@ function displayEos(missedEOs) {
     const showUD = document.getElementById("axis-filter-ud").checked;
     missedEOs.filter((eo) => {
         if(EoFormatter.getEoLength(eo) > maxEoLength) return false;
+        if(!showNormal && EoFormatter.isNormalEo(eo)) return false;
         if(!showInverse && EoFormatter.isInverseEo(eo)) return false;
         if(!showNiss && EoFormatter.isNissEo(eo)) return false;
         if(!showFB && EoFormatter.isEoFB(eo)) return false;
@@ -69,6 +71,7 @@ function displayResults(eoMatcher) {
     timeTakenSpan.innerHTML = formatTime(Math.round((stopTime - startTime) / 1000))
     const missedEosNumSpan = document.getElementById("missed-eos-num");
     missedEosNumSpan.innerHTML = missedEos.length;
+    report.scrollIntoView({block: "start", inline: "nearest", behavior:"smooth"});
 };
 
 function startTimer(duration, display, eoMatcher) {
@@ -250,6 +253,8 @@ async function main() {
         document.getElementById("moves-slider-value").innerHTML = maxMoveCount.value;
         displayEos(eoMatcher.getMissedEos());
     });
+    const showNormal = document.getElementById("normal-filter");
+    showNormal.addEventListener('change', () => displayEos(eoMatcher.getMissedEos()));
     const showInverse = document.getElementById("inverse-filter");
     showInverse.addEventListener('change', () => displayEos(eoMatcher.getMissedEos()));
     const showNiss = document.getElementById("niss-filter");
