@@ -46,16 +46,26 @@ function displayEos(missedEOs) {
     const showFB = document.getElementById("axis-filter-fb").checked;
     const showRL = document.getElementById("axis-filter-rl").checked;
     const showUD = document.getElementById("axis-filter-ud").checked;
-    missedEOs.filter((eo) => {
-        if(EoFormatter.getEoLength(eo) > maxEoLength) return false;
-        if(!showNormal && EoFormatter.isNormalEo(eo)) return false;
-        if(!showInverse && EoFormatter.isInverseEo(eo)) return false;
-        if(!showNiss && EoFormatter.isNissEo(eo)) return false;
-        if(!showFB && EoFormatter.isEoFB(eo)) return false;
-        if(!showRL && EoFormatter.isEoRL(eo)) return false;
-        if(!showUD && EoFormatter.isEoUD(eo)) return false;
-        return true;
-    }).forEach(eo => missedEosSpan.appendChild(getEoDiv(eo)));
+    let shownEos = [];
+    let hiddenEos = [];
+    for(const eo of missedEOs) {
+        const hideEo = EoFormatter.getEoLength(eo) > maxEoLength ||
+        !showNormal && EoFormatter.isNormalEo(eo) ||
+        !showInverse && EoFormatter.isInverseEo(eo) ||
+        !showNiss && EoFormatter.isNissEo(eo) ||
+        !showFB && EoFormatter.isEoFB(eo) || 
+        !showRL && EoFormatter.isEoRL(eo) ||
+        !showUD && EoFormatter.isEoUD(eo);
+        const eoDiv = getEoDiv(eo);
+        if(hideEo) {
+            eoDiv.style.visibility = "hidden";
+            hiddenEos.push(eoDiv);
+        } else {
+            shownEos.push(eoDiv);
+        }
+    }
+    shownEos.forEach(eoDiv => missedEosSpan.appendChild(eoDiv));
+    hiddenEos.forEach(eoDiv => missedEosSpan.appendChild(eoDiv));
 }
 
 function displayResults(eoMatcher) {
