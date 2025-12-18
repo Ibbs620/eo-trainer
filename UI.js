@@ -121,6 +121,10 @@ function resetUI() {
     report.style.visibility = 'hidden';
     const display = document.getElementById("time-left");
     display.innerHTML = document.getElementById("time-limit-m").value + ":" + document.getElementById("time-limit-s").value;
+    const inverseCheckBox = document.getElementById("inverse");
+    inverseCheckBox.checked = false;
+    const eoEntryBox = document.getElementById("entered-eo");
+    eoEntryBox.value = "";
 }
 
 async function main() {
