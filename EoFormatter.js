@@ -22,7 +22,11 @@ export class EoFormatter {
             moves[i-1] = temp;
         }
 
-        let moves = eoString.match(/([RLFBUD]'?2?)/g);
+        let moves = eoString
+            .replace("′" , "'")
+            .replace("’", "'")
+            .toUpperCase()
+            .match(/([RLFBUD]'?2?)/g);
         if(!moves) return "";
         
         for(let i = 1; i < moves.length; i++) {
