@@ -21,6 +21,7 @@ export class EoMatcher {
     removeEo(eo) {
         eo = EoFormatter.formatEo(eo).trim();
         this.foundEos.delete(eo);
+        this.wrongEos.delete(eo)
     }
 
     checkIfFoundEo(eo) {
