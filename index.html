@@ -7,20 +7,55 @@
             body {
                 margin: 0;
                 padding: 8px;
-                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                font-family: 'Segoe UI', Arial, sans-serif;
                 background-color: #1E1E2F;
                 color: #E0E0E0;
             }
-            #settings-box, #filter-box {
-                width: fit-content;
+        
+            a {
+                color:#4C9AFF;
+            }
+        
+            #site-header {
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 60px;
+                background-color: #222;  /* dark background */
+                color: #fff;             /* white text */
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 0 20px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+                z-index: 1000;           /* on top of other elements */
+                font-family: Arial, sans-serif;
+            }
+
+            #header-btns {
+                margin-left: 10px;
+                color: #fff;
+                border: none;
+                padding: 8px 14px;
+                border-radius: 4px;
+                cursor: pointer;
+                font-size: 0.9rem;
+            }
+
+            .settings-box{
                 box-sizing: border-box;
-                padding: 8px;
-                background-color: #2C2C3E;
+                padding: 5px;
+                background-color: #2a2c51;
                 border: 1px solid #555577;
                 color: #E0E0E0;
             }
 
-            #settings-box input[type="text"] {
+            .settings-header {
+                font-size: larger;
+                font-weight: bold;
+            }
+
+            .tl[type="text"] {
                 width: 3em;
             }
 
@@ -46,10 +81,12 @@
             }
 
             #scramble-string {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                font-size: x-large;
                 word-wrap: break-word;
                 overflow-wrap: break-word;
                 white-space: normal;                  
-                max-width: 100%;      
+                max-width: 100%;  
             }
 
             .eoList > div {
@@ -65,13 +102,32 @@
                 width: 100%;
                 max-width: 300px;
                 margin: 8px 0;
-                background-color: #4C9AFF;
+                background-color: #165fbf;
                 color: #E0E0E0;
             }
 
-            #plus-one-btn {
-                width: 8%;
-                margin: 2px 0;
+            #close-modal {
+                padding: 5px;
+                width: fit-content;
+                background-color: #4C9AFF;
+                color: #E0E0E0;
+                float: right;
+            }
+
+            #extra-time-btn {
+                width: fit-content;
+                display: none;
+            }
+
+            .default {
+                padding: 4px;
+                width: fit-content;
+                color: #E0E0E0;
+            }
+
+            .title {
+                font-size: xx-large;
+                font-weight: bold;
             }
 
             button:hover {
@@ -96,9 +152,103 @@
                 width: 90%;
                 max-width: 100%;        
                 height: 2.5em; 
-                font-size: 1.1rem;
+                font-size: x-large;
                 box-sizing: border-box;
                 resize : none;
+            }
+
+            input[type="checkbox"] {
+                width: 15px;
+                height: 15px;
+                padding: 0;
+                margin:0;
+                vertical-align: bottom;
+                position: relative;
+                top: -1px;
+            }
+        
+
+            .modal {
+                display: none;
+                position: fixed; 
+                z-index: 1; 
+                left: 0;
+                top: 0;
+                width: 100%; 
+                height: 100%; 
+                overflow: auto; 
+                background-color: rgb(0,0,0); 
+                background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+            }
+
+            .modal-content {
+                background-color: #383b6d;
+                margin: 15% auto; /* 15% from the top and centered */
+                padding: 20px;
+                border: 1px solid #888;
+                width: 80%; /* Could be more or less, depending on screen size */
+            }
+
+            #help-modal, #settings-modal {
+                padding: 2px
+            }
+
+            .sh-button {
+                font-size: x-large;
+                width: fit-content;
+                background-color: rgba(0,0,0,0);
+                border : 0px;
+            }
+
+            .close {
+                color: #aaa;
+                float: right;
+                font-size: 28px;
+                font-weight: bold;
+            }
+
+            .close:hover,
+            .close:focus {
+                color: black;
+                text-decoration: none;
+                cursor: pointer;
+            }
+
+            label {
+                display: block;
+                padding-left: 15px;
+                text-indent: -15px;
+            }
+
+            .eo-div {
+                padding: 2px;
+                border-color: black;
+                border-width: 1px;
+                font-family: monospace;
+                display: flex;
+                align-items: center;
+                gap: 5px;
+                background-color: #3C3C5E;
+            }
+
+            #report {
+                border-radius: 10px;
+                background-color: #171723;
+                padding-left: 15px;
+                padding-right: 15px;
+                padding-top: 10px;
+                padding-bottom: 10px;
+            }
+
+            #filter-box {
+                background-color: #0f0f17;
+                border: 2px;
+                border-color: black;
+                border-width: 1px;
+                padding-left: 5px;
+                padding-right: 5px;
+                padding-top: 5px;
+                padding-bottom: 5px;
             }
 
             @media (max-width: 480px) {
@@ -116,52 +266,111 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
     </head>
     <body>
-        <script src="EoFormatter.js" type="module"></script>
-        <script src="EoFinder.js" type="module"></script>
-        <script src="EoMatcher.js" type="module"></script>
-        <script src="ScambleGenerator.js" type="module"></script>
-        <script src="UI.js" type="module"></script>
-        <script src="cube.js"></script>
-        <script src="solve.js"></script>
-        <script src="https://cdn.cubing.net/v0/js/cubing/twisty" type="module"></script>
+        <div id="site-header">
+            <span class="title"> EO Trainer</span>
+            <div id="header-btns">
+                <button id="settings-button" class="sh-button">⚙️</button>
+                <button id="help-button" class="sh-button">❔</button>
+            </div>
+        </div>
 
-        <h1>EO Trainer</h1>
-
-        <details id="settings-box" open="true"> 
-            <summary>Settings</summary>
-            <label>
-                Time limit:
-                <input type="text" id="time-limit-m" maxlength="2" value="10"></input>m <input type="text" id="time-limit-s" maxlength="2" value="00">s
-            </label>
-            <br>
-            <label>
-                Clear EO on entry:
-                <input type="checkbox" id="clear-eo">
-            </label>
-            <br>
-            <label>
-                Ignore inverse toggle when using brackets:
-                <input type="checkbox" id="ignore-inverse-toggle" checked="true">
-            </label>
-            <br>
-            <label>
-                Show inverse image:
-                <input type="checkbox" id="toggle-inverse-image">
-            </label>
-            <br>
-            <label>
-                Scramble view:
-                <select id="scramble-view-mode">
-                    <option value="2d" selected>2D</option>
-                    <option value="3d">3D</option>
-                </select>
-            </label>
-            <br>
-            <label>
-                Use custom scramble:
-                <input type="checkbox" id="use-custom-scramble">
-            </label>
-        </details>
+        <div id="hs-modal" class="modal">
+            <div class="modal-content">
+                <span id="x-modal" class="close">&times;</span>
+                <span id="modal-title" class="title"></span> <br>
+                <div id="settings-modal">
+                    <button id="all-default" class="default">Set all to default</button>
+                    <div class="settings-box">
+                        <span class="settings-header">Timer</span>
+                        <label>
+                            Time limit
+                            <input type="text" inputmode="numeric" id="time-limit-m" maxlength="2" value="10" class="tl settings-field">m 
+                            <input type="text" id="time-limit-s" inputmode="numeric"maxlength="2" value="00" class="tl settings-field">s
+                        </label>
+                        <label>
+                            Show extra time button
+                            <input type="checkbox" id="show-extra-time" class="settings-field">
+                        </label>
+                        <label>
+                            Extra time increment
+                            <input type="text" id="extra-time-amt" maxlength="2" value="30" class="tl settings-field">s
+                        </label>
+                        <button id="timer-default" class="default">Set to default</button>
+                        <hr>
+                        <span class="settings-header">Entry</span>
+                        <label>
+                            Clear EO on entry
+                            <input type="checkbox" id="clear-eo" class="settings-field">
+                        </label>
+                        <label>
+                            Allow invalid EOs
+                            <input type="checkbox" id="allow-invalid" class="settings-field">
+                        </label>
+                        <label>
+                            Allow EOs longer than 5 moves
+                            <input type="checkbox" id="allow-long" class="settings-field">
+                        </label>
+                        <label>
+                            Ignore duplicate EOs
+                            <input type="checkbox" id="allow-duplicate" class="settings-field">
+                        </label>
+                        <label>
+                            Ignore inverse toggle when using brackets
+                            <input type="checkbox" id="ignore-inverse-toggle" checked="true" class="settings-field">
+                        </label>
+                        <button id="entry-default" class="default">Set to default</button>
+                        <hr>
+                        <span class="settings-header">Scramble</span>
+                        <label>
+                            Use custom scramble
+                            <input type="checkbox" id="use-custom-scramble" class="settings-field">
+                        </label>
+                        <label>
+                            Show inverse image
+                            <input type="checkbox" id="toggle-inverse-image" class="settings-field">
+                        </label>
+                        <label>
+                            Scramble view
+                            <select id="scramble-view-mode" class="settings-field">
+                                <option value="2d" selected>2D</option>
+                                <option value="3d">3D</option>
+                            </select>
+                        </label>
+                        <button id="scramble-default" class="default">Set to default</button>
+                    </div>
+                </div>
+                <div id="help-modal">
+                    <h3>
+                        What is this?
+                    </h3>
+                    <p>
+                        This is a tool for 3x3x3 Fewest Moves (FMC) competitors to train the Edge Orientation (EO) 
+                        finding step of the Domino Reduction (DR) method. Typically, the first 8-10 minutes of an FMC attempt 
+                        using DR are spent finding as many sequences that are 5 moves or less which solve EO. 
+                    </p>
+                    <h3>
+                        How do I use it?
+                    </h3>
+                    <p>
+                        After clicking the "Start" button, a scramble and scramble image will be generated and the timer will start.
+                        In the below text box, enter as many EOs as you can find within the time limit. You can end the session early by 
+                        clicking the "End" button. 
+                        <br><br>
+                        To input an EO on the inverse scramble, or a combination of normal and inverse, surround the inverse portion of the EO
+                        with brackets, like F (U F), or (R U F). You can also invert the entire sequence by checking the "Inverse" box.
+                    </p>
+                    <h3>
+                        Contact
+                    </h3>
+                    <p>
+                        You can contact @ibbs620 on Discord for bug fixes and questions.
+                        <br><br>
+                        The source code can be found on <a href="https://github.com/Ibbs620/eo-trainer">GitHub</a>.
+                    </p>
+                </div>
+                <button id="close-modal">Close</button>
+            </div>
+        </div>
 
         <h3 id="scramble-string"></h3>
         <textarea id="scramble-entry" style="display: none;"></textarea><br>
@@ -194,7 +403,7 @@
         <h2 id="timer" >Time Left: <span id="time-left">10:00</span></h2>
         <button id="start-btn">Start</button>
         <button id="end-btn">End</button>
-        <button id="plus-one-btn">+1</button>
+        <button id="extra-time-btn"></button>
         <div id="eo-entry">
             <p>Enter EOs below</p>
             <textarea id="entered-eo"></textarea> 
@@ -206,18 +415,22 @@
             <h4>Found: </h4>
             <div id="list-eos-found" class="eoList"></p>
         </div>
-
+        <br>
         <div id="report" style="visibility: hidden">
-            <h4>Report</h4>
-            <p>You found <span id="eos-found-num"></span> EOs in <span id="time-taken"></span>!</p>
-            <p>You missed <span id="missed-eos-num"></span> EOs:</p>
+            <h2>Report</h2>
+            <p>Time taken:  <span id="time-taken"></span></p>
+            <p>EOs found:  <span id="eos-found-num"></span></p>
+            <span id=wrong-eos-report style="display: none">
+                <p>Incorrect EOs:  <span id="wrong-eos-num"></span></p>
+            </span>
+            <p>Missed EOs:  <span id="missed-eos-num"></span></p>
 
-            <details id="filter-box" open="false">
+            <details id="filter-box" open>
                 <summary>Filter</summary>
                 <label>
                     Max move count:
                     <input id="moves-slider" type="range" value="5" min="1" max="5" /> <span id="moves-slider-value">5</span>
-                </label><br>
+                </label>
                 <label>
                     Axis:
                     <label>
@@ -232,15 +445,15 @@
                         U/D
                         <input type="checkbox" id="axis-filter-ud" checked="true">
                     </label>
-                </label><br>
+                </label>
                 <label>
                     Show normal EOs:
                     <input type="checkbox" id="normal-filter" checked="true">
-                </label><br>
+                </label>
                 <label>
                     Show inverse EOs:
                     <input type="checkbox" id="inverse-filter" checked="true">
-                </label><br>
+                </label>
                 <label>
                     Show NISS EOs:
                     <input type="checkbox" id="niss-filter" checked="true">
@@ -249,5 +462,14 @@
             <br>
             <div id="missed-eos" class="eoList"></div>
         </div>
+        
+        <script src="EoFormatter.js" type="module"></script>
+        <script src="EoFinder.js" type="module"></script>
+        <script src="EoMatcher.js" type="module"></script>
+        <script src="ScambleGenerator.js" type="module"></script>
+        <script src="UI.js" type="module"></script>
+        <script src="cube.js"></script>
+        <script src="solve.js"></script>
+        <script src="https://cdn.cubing.net/v0/js/cubing/twisty" type="module"></script>
     </body>
 </html>

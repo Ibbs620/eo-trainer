@@ -27,16 +27,79 @@ function invert(eo) {
     return inverse + "(" + normal + ")";
 }
 
-function getEoDiv(eo){
-    const eoDiv = document.createElement("div");
-    eoDiv.innerHTML = eo;
-    eoDiv.style.borderColor = "black";
-    eoDiv.style.borderWidth = "1px";
-    eoDiv.style.padding = "2px";
-    return eoDiv
+function loadSettings() {
+    document.querySelectorAll(".settings-field").forEach(elem => {
+        const savedValue = localStorage.getItem(elem.id);
+        if(savedValue === null) return;
+
+        if(elem.type === "checkbox") {
+            elem.checked = savedValue === "true";
+        } else {
+            elem.value = savedValue;
+        }
+
+        const event = new Event('input', { bubbles: true });
+        elem.dispatchEvent(event);
+    });
 }
 
-function displayEos(missedEOs) {
+function setToDefault(event){
+    if(event.srcElement.id === "timer-default" || event.srcElement.id == "all-default"){
+        document.getElementById("time-limit-m").value = "10";
+        document.getElementById("time-limit-s").value = "00";
+        document.getElementById("show-extra-time").checked = false;
+        document.getElementById("extra-time-amt").value = 30;
+    }
+    if(event.srcElement.id === "entry-default" || event.srcElement.id == "all-default"){
+        document.getElementById("clear-eo").checked = false;
+        document.getElementById("allow-invalid").checked = true;
+        document.getElementById("allow-long").checked = false;
+        document.getElementById("allow-duplicate").checked = false;
+        document.getElementById("ignore-inverse-toggle").checked = true;
+    }
+    if(event.srcElement.id === "scramble-default" || event.srcElement.id == "all-default"){
+        document.getElementById("use-custom-scramble").checked = false;
+        document.getElementById("toggle-inverse-image").checked = false;
+        document.getElementById("scramble-view-mode").value = "2d";
+    } 
+
+    document.querySelectorAll(".settings-field").forEach(elem => {
+        const input = new Event('input', { bubbles: true });
+        elem.dispatchEvent(input);
+    });
+}
+
+function getFoundEoDiv(eo, eoMatcher){
+    const eoDiv = document.createElement("div");
+    const movesDiv = document.createElement("div");
+    movesDiv.innerHTML = eo;
+    eoDiv.id = eo;
+    eoDiv.className = "found-eo-div eo-div";
+    eoDiv.appendChild(movesDiv);
+    if(document.getElementById("allow-invalid").checked) {
+        const deleteEo = document.createElement("span");
+        deleteEo.addEventListener('click', function() {
+            if(!attemptInProgress) return;
+            eoMatcher.removeEo(eo);
+            eoDiv.style.display = "none";
+        });
+        deleteEo.classList.add("close");
+        deleteEo.classList.add("delete-eo");
+        deleteEo.innerHTML = '&times';
+        eoDiv.appendChild(deleteEo);
+    }
+    return eoDiv;
+}
+
+function getMissedEoDiv(eo){
+    const eoDiv = document.createElement("div");
+    eoDiv.id = eo
+    eoDiv.innerHTML = eo;
+    eoDiv.className = "eo-div";
+    return eoDiv;
+}
+
+function displayEos(eoMatcher) {
     const missedEosSpan = document.getElementById("missed-eos");
     missedEosSpan.innerHTML = "";
     const maxEoLength = document.getElementById("moves-slider").value;
@@ -46,9 +109,10 @@ function displayEos(missedEOs) {
     const showFB = document.getElementById("axis-filter-fb").checked;
     const showRL = document.getElementById("axis-filter-rl").checked;
     const showUD = document.getElementById("axis-filter-ud").checked;
-    let shownEos = [];
-    let hiddenEos = [];
-    for(const eo of missedEOs) {
+
+    const hiddenEos = [];
+    const shownEos = [];
+    for(const eo of eoMatcher.getMissedEos()) {
         const hideEo = EoFormatter.getEoLength(eo) > maxEoLength ||
         !showNormal && EoFormatter.isNormalEo(eo) ||
         !showInverse && EoFormatter.isInverseEo(eo) ||
@@ -56,7 +120,7 @@ function displayEos(missedEOs) {
         !showFB && EoFormatter.isEoFB(eo) || 
         !showRL && EoFormatter.isEoRL(eo) ||
         !showUD && EoFormatter.isEoUD(eo);
-        const eoDiv = getEoDiv(eo);
+        const eoDiv = getMissedEoDiv(eo);
         if(hideEo) {
             eoDiv.style.visibility = "hidden";
             hiddenEos.push(eoDiv);
@@ -74,13 +138,37 @@ function displayResults(eoMatcher) {
     report.style.visibility = 'visible';
     const foundEos = eoMatcher.getFoundEos();
     const missedEos = eoMatcher.getMissedEos();
-    displayEos(missedEos);
+    displayEos(eoMatcher);
     const foundEosNumSpan = document.getElementById("eos-found-num");
     foundEosNumSpan.innerHTML = foundEos.length;
     const timeTakenSpan = document.getElementById("time-taken");
     timeTakenSpan.innerHTML = formatTime(Math.round((stopTime - startTime) / 1000))
     const missedEosNumSpan = document.getElementById("missed-eos-num");
     missedEosNumSpan.innerHTML = missedEos.length;
+    const wrongEosReportSpan = document.getElementById("wrong-eos-report");
+    if(document.getElementById("allow-invalid").checked) {
+        wrongEosReportSpan.style.display = "inline";
+        const wrongEosNumSpan = document.getElementById("wrong-eos-num");
+        wrongEosNumSpan.innerHTML = eoMatcher.getWrongEos().length;
+        for(const deleteButton of document.getElementsByClassName("delete-eo")) {
+            deleteButton.style.display = "none";
+        }
+    }
+    if(document.getElementById("allow-duplicate").checked) {
+        for(const eoDiv of document.getElementsByClassName("found-eo-div")) {
+            eoDiv.style.display = "none";
+        }
+        for(const eo of eoMatcher.getFoundEos()) {
+            const eoDiv = document.getElementById(eo);
+            eoDiv.style.display = "inline";
+        }
+    }
+    for(const eo of eoMatcher.getWrongEos()) {
+        const eoDiv = document.getElementById(eo);
+        eoDiv.style.display = "flex";
+        eoDiv.style.backgroundColor = "#ff3636";
+        eoDiv.style.borderColor = "#661515";
+    }
     report.scrollIntoView({block: "start", inline: "nearest", behavior:"smooth"});
 };
 
@@ -99,10 +187,10 @@ function startTimer(duration, display, eoMatcher) {
         }
         display.textContent = formatTime(timer);
     }, 1000);
-    const plusOneBtn = document.getElementById("plus-one-btn");
-    plusOneBtn.addEventListener('click', function(event) {
+    const extraTimeBtn = document.getElementById("extra-time-btn");
+    extraTimeBtn.addEventListener('click', function() {
         if(!attemptInProgress) return;
-        timer += 60;
+        timer += parseInt(localStorage.getItem("extra-time-amt"));
         display.textContent = formatTime(timer);
     });
     return intervalId;
@@ -129,7 +217,7 @@ function resetUI() {
 
 async function main() {
     let sg = new ScrambleGenerator();
-    let eoFinder = new EoFinder(5);
+    let eoFinder;
     let eoMatcher;
     let intervalId;
     const startBtn = document.getElementById("start-btn");
@@ -151,7 +239,8 @@ async function main() {
         } else {
             scram = sg.getPaddedScramble();
         }
-        const foundEos = await eoFinder.findAllSub5EosRecursive(scram);
+        eoFinder = new EoFinder(scram);
+        const foundEos = await eoFinder.findAllSub5EosRecursive();
         eoMatcher = new EoMatcher(foundEos);
         document.getElementById("scramble-string").innerHTML = scram;
         document.getElementById("normal-scramble-view").setAttribute("alg", scram);
@@ -190,29 +279,96 @@ async function main() {
 
     const eoInputField = document.getElementById("entered-eo");
     eoInputField.addEventListener('keydown', function(event) {
+        const allowInvalid = document.getElementById("allow-invalid").checked;
+        const allowDuplicate = document.getElementById("allow-duplicate").checked;
+        const allowLong = document.getElementById("allow-long").checked;
+
+        const error = document.getElementById("error-msg");
+        const addFoundEo = function(eo){
+            const foundEosDiv = document.getElementById("list-eos-found");
+            foundEosDiv.appendChild(getFoundEoDiv(eo, eoMatcher));
+            error.innerHTML = "";
+            if(document.getElementById("clear-eo").checked) eoInputField.value = "";
+        };
+
         if (event.key === 'Enter') {
             event.preventDefault();
             if(!attemptInProgress) return;
-            const error = document.getElementById("error-msg");
-            const foundEosDiv = document.getElementById("list-eos-found");
             error.innerHTML = "";
             let eo = document.getElementById("inverse").checked ? invert(eoInputField.value) : eoInputField.value;
             eo = eo.toUpperCase();
-            if(eoMatcher.checkIfFoundEo(eo)) {
+            if(!EoFormatter.checkValidString(eo)) {
+                error.innerHTML = "Invalid string";
+                return;
+            }
+            eo = EoFormatter.formatEo(eo).trim();
+            if(EoFormatter.countMoves(eo) > 5) {
+                if(!allowLong) error.innerHTML = "EO greater than 5 moves";
+                else if(!eoFinder.isEo(eo)) {
+                    if(!allowInvalid) {
+                        error.innerHTML = "Invalid EO";
+                    } else {
+                        eoMatcher.addWrongEo(eo);
+                        addFoundEo(eo);
+                    }
+                } else if (!allowDuplicate && eoMatcher.getFoundEos().includes(eo)){
+                        error.innerHTML = "EO already found";
+                } else {
+                    eoMatcher.addExtraEo(eo);
+                    addFoundEo(eo);
+                }
+            }
+            else if(eoMatcher.checkIfFoundEo(eo) && !allowDuplicate) {
                 error.innerHTML = "EO already found";
             } else if (!eoMatcher.checkIfEo(eo)){
-                error.innerHTML = "Invalid EO";
+                if(!allowInvalid) {
+                    error.innerHTML = "Invalid EO";
+                } else if (!allowDuplicate && eoMatcher.getWrongEos().includes(eo)) {
+                    error.innerHTML = "EO already found";
+                } else {
+                    eoMatcher.addWrongEo(eo);
+                    addFoundEo(eo);
+                }
             } else {
-                foundEosDiv.appendChild(getEoDiv(EoFormatter.formatEo(eo)));
-                error.innerHTML = "";
-                if(document.getElementById("clear-eo").checked) eoInputField.value = "";
+                addFoundEo(eo);
             }
         }
     });
 
+    const extraTimeCheck = document.getElementById("show-extra-time");
+    const extraTimeBtn = document.getElementById("extra-time-btn");
+    const extraTimeAmt = document.getElementById("extra-time-amt");
+    extraTimeAmt.addEventListener('change', function() {
+        extraTimeBtn.innerHTML = "+" + localStorage.getItem("extra-time-amt") + "s";
+    })
+    extraTimeCheck.addEventListener('input', function() {
+        if(extraTimeCheck.checked) {
+            extraTimeBtn.style.display = "inline";
+        } else {
+            extraTimeBtn.style.display = "none";
+        }
+    });
+
+    const timeLimitM = document.getElementById("time-limit-m");
+    const timeLimitS = document.getElementById("time-limit-s");
+    const timeLeft = document.getElementById("time-left");
+    const handleUpdateTime = function() {
+        let minutes = timeLimitM.value;
+        let seconds = timeLimitS.value;
+        var timer = 0;
+        try {
+            timer += parseInt(minutes) * 60;
+        } catch {}
+        try {
+            timer += parseInt(seconds);
+        } catch {}
+        timeLeft.textContent = formatTime(timer);
+    }
+    timeLimitM.addEventListener('change', handleUpdateTime);
+    timeLimitS.addEventListener('change', handleUpdateTime);
     
     const showInverseCheck = document.getElementById("toggle-inverse-image");
-    showInverseCheck.addEventListener('click', function(event) {
+    showInverseCheck.addEventListener('input', function() {
         if(showInverseCheck.checked) {
             document.getElementById("normal-scramble-title").style.visibility = "visible";
             document.getElementById("inverse-scramble").style.display = "";
@@ -223,7 +379,7 @@ async function main() {
     });
 
     const scrambleViewSelector = document.getElementById("scramble-view-mode");
-    scrambleViewSelector.addEventListener('change', function(event) {
+    scrambleViewSelector.addEventListener('input', function(event) {
         if(event.target.value == "2d") {
             document.getElementById("normal-scramble-view").setAttribute("visualization", "2D");
             document.getElementById("inverse-scramble-view").setAttribute("visualization", "2D");
@@ -234,7 +390,7 @@ async function main() {
     });
 
     const customScrambleCheck = document.getElementById("use-custom-scramble");
-    customScrambleCheck.addEventListener('click', function(event) {
+    customScrambleCheck.addEventListener('input', function() {
         if(attemptInProgress) return;
         if(customScrambleCheck.checked) {
             document.getElementById("scramble-string").innerHTML = "Enter scramble below";
@@ -248,7 +404,7 @@ async function main() {
     });
     
     const customScrambleEntry = document.getElementById("scramble-entry");
-    customScrambleEntry.addEventListener('input', function(event) {
+    customScrambleEntry.addEventListener('input', function() {
         if(attemptInProgress) return;
         const alg = customScrambleEntry.value;
         try{    
@@ -263,22 +419,92 @@ async function main() {
     });
 
     const maxMoveCount = document.getElementById("moves-slider");
-    maxMoveCount.addEventListener('change', () => {
+    maxMoveCount.addEventListener('input', () => {
         document.getElementById("moves-slider-value").innerHTML = maxMoveCount.value;
-        displayEos(eoMatcher.getMissedEos());
+        displayEos(eoMatcher);
     });
     const showNormal = document.getElementById("normal-filter");
-    showNormal.addEventListener('change', () => displayEos(eoMatcher.getMissedEos()));
+    showNormal.addEventListener('input', () => displayEos(eoMatcher));
     const showInverse = document.getElementById("inverse-filter");
-    showInverse.addEventListener('change', () => displayEos(eoMatcher.getMissedEos()));
+    showInverse.addEventListener('input', () => displayEos(eoMatcher));
     const showNiss = document.getElementById("niss-filter");
-    showNiss.addEventListener('change', () => displayEos(eoMatcher.getMissedEos()));
+    showNiss.addEventListener('input', () => displayEos(eoMatcher));
     const showFB = document.getElementById("axis-filter-fb");
-    showFB.addEventListener('change', () => displayEos(eoMatcher.getMissedEos()));
+    showFB.addEventListener('input', () => displayEos(eoMatcher));
     const showRL = document.getElementById("axis-filter-rl");
-    showRL.addEventListener('change', () => displayEos(eoMatcher.getMissedEos()));
+    showRL.addEventListener('input', () => displayEos(eoMatcher));
     const showUD = document.getElementById("axis-filter-ud");
-    showUD.addEventListener('change', () => displayEos(eoMatcher.getMissedEos()));
-}
+    showUD.addEventListener('input', () => displayEos(eoMatcher));
+
+    const settingsModalBtn = document.getElementById("settings-button");
+    const helpModalBtn = document.getElementById("help-button");
+    const modalTitle = document.getElementById("modal-title");
+    const modalXBtn = document.getElementById("x-modal");
+    const modalCloseBtn = document.getElementById("close-modal");
+    const modal = document.getElementById("hs-modal");
+    const settingsContent = document.getElementById("settings-modal");
+    const helpContent = document.getElementById("help-modal");
+
+    settingsModalBtn.addEventListener('click', function(event) {
+        modal.style.display = "block";
+        settingsContent.style.display = "inline";
+        helpContent.style.display = "none";
+        modalTitle.innerHTML = "Settings";
+    });
+
+    helpModalBtn.addEventListener('click', function(event) {
+        modal.style.display = "block";
+        settingsContent.style.display = "none";
+        helpContent.style.display = "inline";
+        modalTitle.innerHTML = "About";
+    });
     
+    modalXBtn.addEventListener('click', function(event) {
+        modal.style.display = "none";
+    })
+    
+    modalCloseBtn.addEventListener('click', function(event) {
+        modal.style.display = "none";
+    })
+
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+
+    document.body.addEventListener('keydown', function(e){
+        if (e.key == "Escape") modal.style.display = "none";
+    });
+
+    document.querySelectorAll(".settings-field").forEach(elem => {
+        elem.addEventListener("input", event => {
+            let value;
+            if (elem.type === "checkbox") {
+                value = elem.checked;
+            } else if (elem.tagName === "SELECT") {
+                value = elem.value;
+            } else {
+                value = elem.value;
+            }
+            localStorage.setItem(elem.id, value);
+        });
+    });
+
+    document.querySelectorAll(".tl").forEach(elem => {
+        elem.addEventListener("input", (e) => {
+            e.target.value = e.target.value.replace(/\D+/g, '');
+        });
+    });
+
+    document.querySelectorAll(".default").forEach(elem => {
+        elem.addEventListener("click", (e) => {
+            setToDefault(e);
+        });
+    });
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    loadSettings();
+});
 main();

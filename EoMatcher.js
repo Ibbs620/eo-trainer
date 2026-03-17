@@ -3,31 +3,49 @@ import { EoFormatter } from "./EoFormatter.js";
 export class EoMatcher {
     constructor(allEos) {
         this.allEos = allEos;
-        this.foundEos = [];
-        this.missedEOs = [...allEos];
+        this.foundEos = new Set();
+        this.missedEOs = new Set(allEos);
+        this.wrongEos = new Set();
     } 
 
     checkIfEo(eo) {
         eo = EoFormatter.formatEo(eo).trim();
-        if(this.allEos.includes(eo)) {
-            this.foundEos.push(eo);
-            this.missedEOs.splice(this.missedEOs.indexOf(eo), 1);
+        if(this.allEos.includes(eo))  {
+            this.missedEOs.delete(eo);
+            this.foundEos.add(eo);
             return true;
         }  
         return false;
     }
 
+    removeEo(eo) {
+        eo = EoFormatter.formatEo(eo).trim();
+        this.foundEos.delete(eo);
+    }
+
     checkIfFoundEo(eo) {
         eo = EoFormatter.formatEo(eo).trim();
-        return this.foundEos.includes(eo);
+        return this.foundEos.has(eo);
     }
 
     getFoundEos() {
-        return this.foundEos;
+        return [...this.foundEos];
     }
 
     getMissedEos() {
-        return this.missedEOs;
+        return [...this.missedEOs];
+    }
+    
+    addWrongEo(eo) {
+        this.wrongEos.add(eo);
+    }
+    
+    getWrongEos() {
+        return [...this.wrongEos];
     }
 
+    addExtraEo(eo) {
+        eo = EoFormatter.formatEo(eo).trim();
+        this.foundEos.add(eo);
+    }
 }

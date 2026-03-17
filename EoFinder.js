@@ -78,14 +78,18 @@ const nissStartTwoMove = Array.from(Object.entries(eoEndingFollowup))
 
 export class EoFinder {
 
-    async findAllSub5EosRecursive(scramble) {
+    constructor (scramble){
+        this.scramble = scramble;
+    }
+
+    async findAllSub5EosRecursive() {
         await init();
         let cube = new ArrayCube();
-        const inverseScramble = Cube.inverse(scramble);
+        const inverseScramble = Cube.inverse(this.scramble);
 
         console.log("Finding normal EOs");
         //Normal EOs
-        cube.do_alg(scramble);
+        cube.do_alg(this.scramble);
         let normalEOs = [];
         for(const move of allMoves) {
             this.recuriveCheck("", move, cube, normalEOs);
@@ -128,7 +132,7 @@ export class EoFinder {
             for(const premoves of nissStartOneMove) {
                 cube = new ArrayCube();
                 cube.do_alg(Cube.inverse(premoves));
-                cube.do_alg(scramble);
+                cube.do_alg(this.scramble);
                 let normalPortion = [];
                 this.recuriveCheck("", move, cube, normalPortion, 4, [axis[premoves.at(-1)]]);
                 for(const sequence of normalPortion) {
@@ -161,7 +165,7 @@ export class EoFinder {
             for(const premoves of nissStartTwoMove) {
                 cube = new ArrayCube();
                 cube.do_alg(Cube.inverse(premoves));
-                cube.do_alg(scramble);
+                cube.do_alg(this.scramble);
                 let normalPortion = [];
                 this.recuriveCheck("", move, cube, normalPortion, 3, [axis[premoves.at(-1)]]);
                 for(const sequence of normalPortion) {
@@ -233,5 +237,15 @@ export class EoFinder {
         }
 
         cube.do_alg(inverse[move]);
+    }
+
+    isEo(eoString) {
+        let normal = EoFormatter.getNormalPortion(eoString);
+        let inverse = EoFormatter.getInversePortion(eoString);
+        let cube = new ArrayCube();
+        cube.do_alg(Cube.inverse(inverse));
+        cube.do_alg(this.scramble);
+        cube.do_alg(normal);
+        return cube.bad_edge_count(Axis.RL) == 0 || cube.is_eo(Axis.UD) || cube.is_eo(Axis.FB);
     }
 }

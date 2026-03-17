@@ -15,6 +15,11 @@ export class EoFormatter {
         }
     }
 
+    static checkValidString(eoString){
+        const validRegex = /^(?:\s*[RLFBUD](?:'|2)?\s*|\s*\([RLFBUD](?:'|2)?(?:\s*[RLFBUD](?:'|2)?)*\)\s*)+$/;
+        return validRegex.test(eoString.trim());
+    }
+
     static formatEoString(eoString) {
         const swapMoves = function(i, moves) {
             let temp = moves[i];
