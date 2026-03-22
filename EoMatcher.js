@@ -10,6 +10,7 @@ export class EoMatcher {
 
     checkIfEo(eo) {
         eo = EoFormatter.formatEo(eo).trim();
+        if(eo[eo.length - 1] === "'") eo = eo.substring(0, eo.length - 1);
         if(this.allEos.includes(eo))  {
             this.missedEOs.delete(eo);
             this.foundEos.add(eo);

@@ -56,6 +56,7 @@ function setToDefault(event){
         document.getElementById("allow-long").checked = false;
         document.getElementById("allow-duplicate").checked = false;
         document.getElementById("ignore-inverse-toggle").checked = true;
+        document.getElementById("auto-cancel").checked = true;
     }
     if(event.srcElement.id === "scramble-default" || event.srcElement.id == "all-default"){
         document.getElementById("use-custom-scramble").checked = false;
@@ -377,6 +378,9 @@ async function main() {
             document.getElementById("inverse-scramble").style.display = "none";
         }
     });
+    
+    const autoCancelCheck = document.getElementById("auto-cancel");
+    autoCancelCheck.addEventListener('input', () => EoFormatter.setAutoCancel(autoCancelCheck.checked));
 
     const scrambleViewSelector = document.getElementById("scramble-view-mode");
     scrambleViewSelector.addEventListener('input', function(event) {

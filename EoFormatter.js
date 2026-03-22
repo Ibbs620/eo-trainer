@@ -1,4 +1,20 @@
 export class EoFormatter {
+
+    static oppositeFace = {
+        "F" : "B",
+        "B" : "F",
+        "U" : "D",
+        "D" : "U",
+        "L" : "R",
+        "R" : "L"
+    };
+    
+    static allowAutoCancel = false;
+
+    static setAutoCancel(value) {
+        this.allowAutoCancel = value;
+    }
+
     static getNormalPortion(eoString) {
         try {
             return eoString.replace(/\([^)]*\)/, "").trim();;
@@ -17,35 +33,76 @@ export class EoFormatter {
 
     static checkValidString(eoString){
         const validRegex = /^(?:\s*[RLFBUD](?:'|2)?\s*|\s*\([RLFBUD](?:'|2)?(?:\s*[RLFBUD](?:'|2)?)*\)\s*)+$/;
-        return validRegex.test(eoString.trim());
+        return validRegex.test(eoString.trim()
+            .replace("′" , "'")
+            .replace("’", "'")
+            .toUpperCase());
     }
 
     static formatEoString(eoString) {
-        const swapMoves = function(i, moves) {
-            let temp = moves[i];
-            moves[i] = moves[i-1];
-            moves[i-1] = temp;
-        }
-
         let moves = eoString
             .replace("′" , "'")
             .replace("’", "'")
             .toUpperCase()
             .match(/([RLFBUD]'?2?)/g);
         if(!moves) return "";
-        
-        for(let i = 1; i < moves.length; i++) {
-            if(moves[i][0] == 'F' && moves[i-1][0] == 'B') {
-                swapMoves(i, moves);
-            }
-            else if(moves[i][0] == 'R' && moves[i-1][0] == 'L') {
-                swapMoves(i, moves);
-            }
-            else if(moves[i][0] == 'U' && moves[i-1][0] == 'D') {
-                swapMoves(i, moves);
-            }
-        }
+        if(this.allowAutoCancel) this.cancelMoves(moves);
         return moves.join(" ");
+    }
+
+    static cancelMoves(moves) {
+        let windowSize = 1;
+        let prevAxis = ''
+        let currentAxis = '';
+        let i = 0;
+        while(i <= moves.length) {
+            prevAxis = currentAxis;
+            if(i == moves.length) {
+                currentAxis = "";
+            } else if(moves[i][0] == 'F' || moves[i][0] == 'B') {
+                currentAxis = "F";
+            }
+            else if(moves[i][0] == 'R' || moves[i][0] == 'L') {
+                currentAxis = "R";
+            }
+            else if(moves[i][0] == 'U' || moves[i][0] == 'D') {
+                currentAxis = "U";
+            }
+            if(prevAxis === currentAxis) {
+                windowSize++;
+            } else if (windowSize != 1) {
+                let movesToSimplify = moves.slice(i - windowSize, i);
+                let faceA = prevAxis;
+                let faceB = this.oppositeFace[faceA];
+                let aCount = 0;
+                let bCount = 0;
+                for(const move of movesToSimplify) {
+                    if(move[0] === faceA) {
+                        if(move.length === 1) aCount += 1
+                        else if (move[1] === "'") aCount -=1
+                        else aCount += 2
+                    } else if(move[0] === faceB) {
+                        if(move.length === 1) bCount += 1
+                        else if (move[1] === "'") bCount -=1
+                        else bCount += 2
+                    }
+                }
+                let simplifiedMoves = []
+                aCount %= 4;
+                bCount %= 4;
+                if(aCount !== 0) {
+                    simplifiedMoves.push(faceA + (aCount === 2 ? "2" : aCount === 3 ? "'" : ""));
+                }
+                if(bCount !== 0) {
+                    simplifiedMoves.push(faceB + (bCount === 2 ? "2" : bCount === 3 ? "'" : ""));
+                }
+                moves.splice(i - windowSize, windowSize, ...simplifiedMoves);
+                i -= windowSize - simplifiedMoves.length;
+                windowSize = 1;
+            }
+            i++;
+        } 
+        return moves;
     }
 
     static formatEo(eoString) {
