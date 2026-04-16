@@ -40,13 +40,34 @@ export class EoFormatter {
     }
 
     static formatEoString(eoString) {
+        const swapMoves = function(i, moves) {
+            let temp = moves[i];
+            moves[i] = moves[i-1];
+            moves[i-1] = temp;
+        }
         let moves = eoString
             .replace("′" , "'")
             .replace("’", "'")
             .toUpperCase()
             .match(/([RLFBUD]'?2?)/g);
         if(!moves) return "";
-        if(this.allowAutoCancel) this.cancelMoves(moves);
+        if(this.allowAutoCancel) {
+            // new cancellation logic
+            this.cancelMoves(moves);
+        } else {
+            // old cancellation logic
+            for(let i = 1; i < moves.length; i++) {
+                if(moves[i][0] == 'F' && moves[i-1][0] == 'B') {
+                    swapMoves(i, moves);
+                }
+                else if(moves[i][0] == 'R' && moves[i-1][0] == 'L') {
+                    swapMoves(i, moves);
+                }
+                else if(moves[i][0] == 'U' && moves[i-1][0] == 'D') {
+                    swapMoves(i, moves);
+                }
+            }
+        }
         return moves.join(" ");
     }
 
