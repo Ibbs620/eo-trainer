@@ -89,10 +89,12 @@ export class EoFormatter {
             else if(moves[i][0] == 'U' || moves[i][0] == 'D') {
                 currentAxis = "U";
             }
+    
             if(prevAxis === currentAxis) {
                 windowSize++;
             } else if (windowSize != 1) {
                 let movesToSimplify = moves.slice(i - windowSize, i);
+                console.log(i);
                 let faceA = prevAxis;
                 let faceB = this.oppositeFace[faceA];
                 let aCount = 0;
@@ -109,8 +111,8 @@ export class EoFormatter {
                     }
                 }
                 let simplifiedMoves = []
-                aCount %= 4;
-                bCount %= 4;
+                aCount = ((aCount % 4) + 4) % 4;
+                bCount = ((bCount % 4) + 4) % 4;
                 if(aCount !== 0) {
                     simplifiedMoves.push(faceA + (aCount === 2 ? "2" : aCount === 3 ? "'" : ""));
                 }
@@ -119,6 +121,7 @@ export class EoFormatter {
                 }
                 moves.splice(i - windowSize, windowSize, ...simplifiedMoves);
                 i -= windowSize - simplifiedMoves.length;
+                console.log(i);
                 windowSize = 1;
             }
             i++;
